@@ -1,5 +1,5 @@
 // Adatbázis kezelő
-const { Sequelize, DataTypes } = require("sequelize");
+import { Sequelize, DataTypes } from "sequelize";
 const handler = new Sequelize("travel_agency", "root", "", {
   dialect: "mysql",
   host: "localhost",
@@ -19,7 +19,7 @@ const handler = new Sequelize("travel_agency", "root", "", {
 // password:
 //  - string
 //  - nem lehet null
-exports.table = handler.define("users", {
+export const User = handler.define("User", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -61,7 +61,7 @@ exports.table = handler.define("users", {
 // - date
 // creator:
 // - string
-exports.table2 = handler.define("trips", {
+export const Trip = handler.define("Trip", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -94,3 +94,5 @@ exports.table2 = handler.define("trips", {
 
   creator: DataTypes.STRING,
 });
+
+await handler.sync({ alter: true });

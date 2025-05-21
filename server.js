@@ -1,21 +1,18 @@
 // Szerver
-const express = require("express");
-const dbHandler = require("./dbHandler");
-require("dotenv").config();
+import express from "express";
+import { User, Trip } from "./dbHandler.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const server = express();
 server.use(express.json());
-
-// Táblák szinkronizálása
-dbHandler.table.sync({ alter: true });
-dbHandler.table2.sync({ alter: true });
 
 server.use(express.static("public"));
 
 const PORT = process.env.PORT;
 const SECRETKEY = process.env.SECRETKEY;
 
-const JWT = require("jsonwebtoken");
+import JWT from "jsonwebtoken";
 
 // Autentikáció
 function Auth() {
@@ -40,7 +37,7 @@ function Auth() {
 server.get("/users/me", Auth(), async (req, res) => {
   try {
     const username = req.user.username;
-    const user = await dbHandler.table.findOne({ where: { username } });
+    const user = await User.findOne({ where: { username } });
 
     if (!user) {
       return res.status(404).json({ message: "Felhasználó nem található" });
@@ -61,7 +58,7 @@ server.get("/users/me", Auth(), async (req, res) => {
 // - registerPassword
 server.post("/users/register", async (req, res) => {
   try {
-    const oneUser = await dbHandler.table.findOne({
+    const oneUser = await User.findOne({
       where: {
         username: req.body.registerUsername,
       },
@@ -71,7 +68,7 @@ server.post("/users/register", async (req, res) => {
       return res.status(400).json({ message: "Már létezik ilyen felhasználó" });
     }
 
-    await dbHandler.table.create({
+    await User.create({
       username: req.body.registerUsername,
       password: req.body.registerPassword,
     });
@@ -90,7 +87,7 @@ server.post("/users/register", async (req, res) => {
 // - loginUsername
 // - loginPassword
 server.post("/auth/login", async (req, res) => {
-  const oneUser = await dbHandler.table.findOne({
+  const oneUser = await User.findOne({
     where: {
       username: req.body.loginUsername,
       password: req.body.loginPassword,
@@ -114,7 +111,7 @@ server.post("/auth/login", async (req, res) => {
 // - username
 server.post("/trips", Auth(), async (req, res) => {
   try {
-    const trip = await dbHandler.table2.create({
+    const trip = await Trip.create({
       ...req.body,
       creator: req.user.username,
     });
@@ -130,17 +127,15 @@ server.post("/trips", Auth(), async (req, res) => {
 // Utazások listázása
 server.get("/trips", Auth(), async (req, res) => {
   try {
-    const trips = await dbHandler.table2.findAll({
+    const trips = await Trip.findAll({
       where: { creator: req.user.username },
     });
     res.status(200).json(trips);
   } catch (e) {
-    res
-      .status(500)
-      .json({
-        message: "Nem sikerült lekérni az utazásokat",
-        error: e.message,
-      });
+    res.status(500).json({
+      message: "Nem sikerült lekérni az utazásokat",
+      error: e.message,
+    });
   }
 });
 
@@ -150,7 +145,7 @@ server.get("/trips", Auth(), async (req, res) => {
 // username
 server.get("/trips/:id", Auth(), async (req, res) => {
   try {
-    const trip = await dbHandler.table2.findOne({
+    const trip = await Trip.findOne({
       where: {
         id: req.params.id,
         creator: req.user.username,
@@ -172,13 +167,13 @@ server.get("/trips/:id", Auth(), async (req, res) => {
 // - tripAccommodation
 // - tripTransport
 server.put("/trips/:id", async (req, res) => {
-  const trip = await dbHandler.table2.findOne({
+  const trip = await Trip.findOne({
     where: {
       id: req.params.id,
     },
   });
   if (trip) {
-    await dbHandler.table2.update(
+    await Trip.update(
       {
         name: req.body.tripName,
         destination: req.body.tripDestination,
@@ -204,13 +199,13 @@ server.put("/trips/:id", async (req, res) => {
 // request:
 // - id
 server.delete("/trips/:id", async (req, res) => {
-  const trip = await dbHandler.table2.findOne({
+  const trip = await Trip.findOne({
     where: {
       id: req.params.id,
     },
   });
   if (trip) {
-    await dbHandler.table2.destroy({
+    await Trip.destroy({
       where: {
         id: req.params.id,
       },
@@ -226,7 +221,7 @@ server.delete("/trips/:id", async (req, res) => {
 // request:
 // - name
 server.get("/trips/name/:name", async (req, res) => {
-  const trips = await dbHandler.table2.findAll({
+  const trips = await Trip.findAll({
     where: {
       name: req.params.name,
     },
