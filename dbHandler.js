@@ -1,10 +1,13 @@
 // Adatbázis kezelő
-const { Sequelize, DataTypes } = require('sequelize')
-const handler = new Sequelize('travel_agency','root','',{dialect: 'mysql', host: 'localhost'})
+const { Sequelize, DataTypes } = require("sequelize");
+const handler = new Sequelize("travel_agency", "root", "", {
+  dialect: "mysql",
+  host: "localhost",
+});
 
 // 'Users' tábla
 // Szerkezet:
-// id: 
+// id:
 //  - integer
 //  - primary key
 //  - auto increment
@@ -16,27 +19,27 @@ const handler = new Sequelize('travel_agency','root','',{dialect: 'mysql', host:
 // password:
 //  - string
 //  - nem lehet null
-exports.table = handler.define('users', {
-    'id': {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true,
-    },
-    username: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-    },
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    }
+exports.table = handler.define("users", {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    allowNull: false,
+    autoIncrement: true,
+  },
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
 // 'Trips' tábla
 // Szerkezet:
-// id: 
+// id:
 //  - integer
 //  - primary key
 //  - auto increment
@@ -58,37 +61,36 @@ exports.table = handler.define('users', {
 // - date
 // creator:
 // - string
-exports.table2 = handler.define('trips', {
-    'id': {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true,
-    },
-    
-    'name': {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-    },
+exports.table2 = handler.define("trips", {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    allowNull: false,
+    autoIncrement: true,
+  },
 
-    'destination': {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
 
-    'accommodation': {
-        type: DataTypes.STRING
-    },
+  destination: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 
-    'transport': {
-        type: DataTypes.STRING
-    },
+  accommodation: {
+    type: DataTypes.STRING,
+  },
 
-    description: DataTypes.TEXT,
+  transport: {
+    type: DataTypes.STRING,
+  },
 
-    date: DataTypes.DATE,
+  description: DataTypes.TEXT,
 
-    creator: DataTypes.STRING
+  date: DataTypes.DATE,
+
+  creator: DataTypes.STRING,
 });
-
