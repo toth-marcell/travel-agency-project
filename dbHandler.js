@@ -1,9 +1,6 @@
 // Adatbázis kezelő
 import { Sequelize, DataTypes } from "sequelize";
-const handler = new Sequelize("travel_agency", "root", "", {
-  dialect: "mysql",
-  host: "localhost",
-});
+const handler = new Sequelize("sqlite:data/db.sqlite");
 
 // 'Users' tábla
 // Szerkezet:
