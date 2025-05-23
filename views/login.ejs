@@ -1,0 +1,23 @@
+<%- include("head") -%>
+<div class="card">
+  <h2>Bejelentkezés / Regisztráció</h2>
+  <% if (typeof msg != "undefined") { %>
+  <p id="msg">
+    <span>Hiba: </span>
+    <%= msg %>
+  </p>
+  <% } %>
+  <form method="post">
+    <label>
+      Felhasználónév
+      <input name="name" placeholder="Add meg a felhasználóneved">
+    </label>
+    <label>
+      Jelszó
+      <input name="password" type="password" placeholder="Add meg a jelszavad">
+    </label>
+    <button formaction="/login">Bejelentkezés</button>
+    <button formaction="/register">Regisztráció</button>
+  </form>
+</div>
+<%- include("foot") -%>

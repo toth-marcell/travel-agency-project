@@ -1,0 +1,56 @@
+<%- include("head") -%>
+<div class="card">
+  <h2>Új utazás</h2>
+  <% if (typeof msg != "undefined") { %>
+  <p id="msg"><%= msg %></p>
+  <% } %>
+  <form method="post">
+    <label>
+      Név
+      <input name="name" value="<%= name %>">
+    </label>
+    <label>
+      Leírás
+      <textarea name="description" rows="10">
+        <%= description -%>
+      </textarea>
+    </label>
+    <label>
+      Dátum
+      <input type="date" name="date" value="<%= date %>">
+    </label>
+    <label>
+      Úticél
+      <select name="destination" id="destinationSelect">
+        <% for (dest of destinations) { %>
+          <option value="<%= dest.id %>" <%= destination == dest.id ? "selected" : "" %>><%= dest.name %></option>
+        <% } %>
+      </select>
+    </label>
+    <label>
+      Szállás
+      <select name="accommodation" id="accommodationSelect">
+        <% for (accom of accommodations) { %>
+        <option
+          value="<%= accom.id %>"
+          data-destId="<%= accom.DestinationId %>"
+          <%= accommodation == accom.id ? "selected" : "" %>
+        >
+          <%= accom.name %>
+        </option>
+        <% } %>
+      </select>
+    </label>
+    <label>
+      Közlekedés
+      <select name="transport">
+        <% for (tr of transports) { %>
+        <option value="<%= tr.id %>" <%= transport == tr.id ? "selected" : "" %>> <%= tr.name %> </option>
+        <% } %>
+      </select>
+    </label>
+    <button>Új utazás hozzáadása</button>
+  </form>
+</div>
+<script src="/editorForm.js"></script>
+<%- include("foot") -%>
