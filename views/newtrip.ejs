@@ -1,0 +1,55 @@
+<%- include("head") -%>
+<div class="card">
+  <h2>Új utazás</h2>
+  <% if (typeof msg != "undefined") { %>
+  <p id="msg"><%= msg %></p>
+  <% } %>
+  <form method="post">
+    <label>
+      Név
+      <input name="name" value="<%= name %>">
+    </label>
+    <label>
+      Leírás
+      <textarea name="description" rows="10">
+        <%= description -%>
+      </textarea>
+    </label>
+    <label>
+      Dátum
+      <input type="date" name="date" value="<%= date %>">
+    </label>
+    <label>
+      Úticél
+      <select name="destination" id="destinationSelect">
+        <% for (dest of destinations) { %>
+        <option value="<%= dest.id %>"><%= dest.name %></option>
+        <% } %>
+      </select>
+    </label>
+    <label>
+      Szállás
+      <select name="accommodation" id="accommodationSelect">
+        <% for (accommodation of accommodations) { %>
+        <option
+          value="<%= accommodation.id %>"
+          data-destId="<%= accommodation.DestinationId %>"
+        >
+          <%= accommodation.name %>
+        </option>
+        <% } %>
+      </select>
+    </label>
+    <label>
+      Közlekedés
+      <select name="transport">
+        <% for (transport of transports) { %>
+        <option value="<%= transport.id %>"><%= transport.name %></option>
+        <% } %>
+      </select>
+    </label>
+    <button>Új utazás hozzáadása</button>
+  </form>
+</div>
+<script src="/editorForm.js"></script>
+<%- include("foot") -%>

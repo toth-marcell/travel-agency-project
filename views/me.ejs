@@ -1,0 +1,11 @@
+<%- include("head") -%>
+<div class="card">
+  <h2>Felhasználói információ</h2>
+  <p>Név: <%= user.name %></p>
+  <p>Fiók készítve: <%= user.createdAt.toISOString() %></p>
+  <h2>Készített utazások</h2>
+  <% for (trip of trips) { %>
+  <a href="/trip/<%= trip.id %>"><h4><%= trip.name %></h4></a>
+  <% } %>
+</div>
+<%- include("foot") -%>

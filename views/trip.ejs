@@ -1,0 +1,18 @@
+<%- include("head") -%>
+<div class="card">
+  <h3><%= trip.name %></h3>
+  <p><%= trip.description %></p>
+  <ul>
+    <li>Dátum: <%= trip.date %></li>
+    <li>Úticél: <%= trip.Destination.name %></li>
+    <li>Szállás: <%= trip.Accommodation.name %></li>
+    <li>Közlekedés: <%= trip.Transport.name %></li>
+  </ul>
+  <% if (user) { %>
+  <a href="/deletetrip/<%= trip.id %>"><button type="button">Törlés</button></a>
+  <a href="/edittrip/<%= trip.id %>">
+    <button type="button">Szerkesztés</button>
+  </a>
+  <% } %>
+</div>
+<%- include("foot") -%>

@@ -1,0 +1,144 @@
+:root {
+  --accent-color: #3498db;
+  --main--color: #333;
+  --main-background: #f5f7fa;
+  --card-background: white;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--main-color);
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--main-background);
+}
+
+h1 {
+  color: var(--accent-color);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+h2 {
+  color: var(--accent-color);
+  border-bottom: 2px solid var(--accent-color);
+  padding-bottom: 5px;
+  margin-top: 30px;
+}
+
+h3 {
+  margin: 0;
+}
+
+article > * {
+  display: inline-block;
+}
+
+article > span {
+  border: 2px solid;
+  border-radius: 8px;
+  padding-inline: 5px;
+  margin-inline: 5px;
+}
+
+a:has(> article):hover {
+  text-decoration: none;
+}
+
+a:hover > article {
+  border-bottom: 5px solid;
+}
+
+a {
+  text-decoration: none;
+  color: currentColor;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.card {
+  background: var(--card-background);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background: var(--main-background);
+  color: var(--main-color);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 10pt;
+  resize: vertical;
+}
+
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin: 5px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+button svg {
+  vertical-align: bottom;
+}
+
+nav {
+  border-bottom: 2px solid var(--accent-color);
+  margin-bottom: 20px;
+}
+
+nav li {
+  display: inline-block;
+  margin-right: 30px;
+}
+
+#msg {
+  border: 2px red solid;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+#msg span {
+  color: red;
+  font-weight: bold;
+}
+
+#search {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content;
+  gap: 20px;
+}
+
+#search > * {
+  margin: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --main-color: #f5f7fa;
+    --main-background: #222;
+    --card-background: #333;
+  }
+}

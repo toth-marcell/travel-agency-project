@@ -1,0 +1,21 @@
+<header>
+  <h1><a href="/"><%= siteName %></a></h1>
+  <nav>
+    <ul>
+      <% if (user) { %>
+      <li>
+        <a href="/newtrip">Új utazás</a>
+      </li>
+      <li>
+        Belépve:
+        <a href="/me"><%= user.name %></a>
+      </li>
+      <li>
+        <a href="/logout">Kilépés</a>
+      </li>
+      <% } else { %>
+      <li><a href="/login">Bejelentkezés / Regisztráció</a></li>
+      <% } %>
+    </ul>
+  </nav>
+</header>
