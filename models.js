@@ -54,16 +54,19 @@ export const Transport = sequelize.define("Transport", {
   },
 });
 
-Trip.belongsTo(User);
-User.hasMany(Trip);
+Trip.belongsTo(User, { foreignKey: "creatorId" });
+User.hasMany(Trip, { foreignKey: "creatorId" });
 
-Trip.belongsTo(Destination);
+Trip.belongsTo(Destination, { onDelete: "RESTRICT" });
+Destination.hasMany(Trip);
 
-Trip.belongsTo(Accommodation);
+Trip.belongsTo(Accommodation, { onDelete: "RESTRICT" });
+Accommodation.hasMany(Trip);
 
-Trip.belongsTo(Transport);
+Trip.belongsTo(Transport, { onDelete: "RESTRICT" });
+Transport.hasMany(Trip);
 
-Accommodation.belongsTo(Destination);
+Accommodation.belongsTo(Destination, { onDelete: "RESTRICT" });
 Destination.hasMany(Accommodation);
 
 await sequelize.sync();

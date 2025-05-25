@@ -29,7 +29,7 @@ export const newTrip = async (
     DestinationId: destination,
     AccommodationId: accommodation,
     TransportId: transport,
-    UserId: userId,
+    creatorId: userId,
   });
   return trip;
 };

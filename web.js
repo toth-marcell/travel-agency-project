@@ -203,6 +203,35 @@ app.get("/deletetrip/:id", LoggedInOnly, async (req, res) => {
 
 app.get("/me", LoggedInOnly, async (req, res) => {
   res.render("me", {
-    trips: await Trip.findAll({ where: { UserId: res.locals.user.id } }),
+    trips: await Trip.findAll({ where: { creatorId: res.locals.user.id } }),
   });
+});
+
+app.get("/transport", LoggedInOnly, async (req, res) => {
+  res.render("transport", {
+    transports: await Transport.findAll(),
+  });
+});
+
+app.post("/transport", LoggedInOnly, async (req, res) => {
+  const name = req.body.name;
+  if (name) await Transport.create({ name });
+  res.redirect("/transport");
+});
+
+app.get("/deletetransport/:id", LoggedInOnly, async (req, res) => {
+  const transport = await Transport.findByPk(req.params.id, { include: Trip });
+  if (transport) {
+    try {
+      await transport.destroy();
+      res.redirect("/transport");
+    } catch (error) {
+      if (error.name == "SequelizeForeignKeyConstraintError") {
+        res.render("transport", {
+          transports: await Transport.findAll(),
+          msg: `Nem lehet törölni "${transport.name}"-t, mert a következő utakban szerepel: ${transport.Trips.map((x) => '"' + x.name + '"').join(", ")}`,
+        });
+      } else throw error;
+    }
+  } else res.redirect("/transport");
 });
