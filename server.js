@@ -2,12 +2,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
-// import APIApp from "./api.js";
+import APIApp from "./api.js";
 import webApp from "./web.js";
 
 const app = express();
 app.use(webApp);
-// app.use("/api", APIApp);
+app.use("/api", APIApp);
 
 const port = process.env.PORT;
 if (!port) {

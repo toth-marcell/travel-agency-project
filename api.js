@@ -1,243 +1,125 @@
-// Szerver
 import express from "express";
-import { User, Trip } from "./models.js";
-import dotenv from "dotenv";
-dotenv.config();
+import { Login, ObtainToken, Register, ValidateToken } from "./auth.js";
+import { Accommodation, Destination, Transport, Trip } from "./models.js";
+import { newTrip, editTrip, searchTrips } from "./trips.js";
 
-const server = express();
-server.use(express.json());
+const app = express();
+export default app;
+app.use(express.json());
 
-server.use(express.static("public"));
+app.use(async (req, res, next) => {
+  try {
+    if (req.query.token) {
+      res.locals.user = await ValidateToken(req.query.token);
+    } else if (req.body.token) {
+      res.locals.user = await ValidateToken(req.body.token);
+    } else throw new Error();
+  } catch {
+    res.locals.user = null;
+  }
+  next();
+});
 
-const PORT = process.env.PORT;
-const SECRETKEY = process.env.SECRETKEY;
-
-import JWT from "jsonwebtoken";
-
-import webApp from "./web.js";
-server.use(webApp);
-
-// Autentikáció
-function Auth() {
-  return (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({ message: "Hibás/nem létező token" });
-    } else {
-      const encryptedToken = authHeader.split(" ")[1];
-      try {
-        const token = JWT.verify(encryptedToken, process.env.SECRETKEY);
-        req.user = token;
-        next();
-      } catch (error) {
-        res.status(401).json({ message: error });
-      }
-    }
-  };
+function APIError(res, msg) {
+  res.status(400).json({ msg: msg });
 }
 
-// Saját profil megtekintése
-server.get("/users/me", Auth(), async (req, res) => {
-  try {
-    const username = req.user.username;
-    const user = await User.findOne({ where: { username } });
+function LoggedInOnly(req, res, next) {
+  if (res.locals.user) next();
+  else APIError(res, "Ezt csak bejelentkezve lehet.");
+}
 
-    if (!user) {
-      return res.status(404).json({ message: "Felhasználó nem található" });
-    }
+function LoggedOutOnly(req, res, next) {
+  if (res.locals.user) APIError(res, "Már be vagy jelentkezve.");
+  else next();
+}
 
-    res.status(200).json({
-      username: user.username,
-      password: user.password,
-    });
-  } catch (err) {
-    res.status(500).json({ message: "Szerver hiba", error: err.message });
-  }
-});
-
-// Regisztráció
-// request:
-// - registerUsername
-// - registerPassword
-server.post("/users/register", async (req, res) => {
-  try {
-    const oneUser = await User.findOne({
-      where: {
-        username: req.body.registerUsername,
-      },
-    });
-
-    if (oneUser) {
-      return res.status(400).json({ message: "Már létezik ilyen felhasználó" });
-    }
-
-    await User.create({
-      username: req.body.registerUsername,
-      password: req.body.registerPassword,
-    });
-
-    res.status(201).json({ message: "Sikeres regisztráció" });
-  } catch (e) {
-    console.error("Register error:", e);
-    res
-      .status(500)
-      .json({ message: "Szerver hiba: " + e.message, errors: e.errors });
-  }
-});
-
-// Bejelentkezés
-// request:
-// - loginUsername
-// - loginPassword
-server.post("/auth/login", async (req, res) => {
-  const oneUser = await User.findOne({
-    where: {
-      username: req.body.loginUsername,
-      password: req.body.loginPassword,
-    },
-  });
-  if (oneUser) {
-    const token = JWT.sign(
-      { username: oneUser.username },
-      process.env.SECRETKEY,
-      { expiresIn: "1h" },
-    );
-    res.status(201).json({ token: token, message: "sikeres bejelentkezés" });
+app.post("/login", LoggedOutOnly, async (req, res) => {
+  const result = await Login(req.body.name, req.body.password);
+  if (typeof result == "string") {
+    APIError(res, result);
   } else {
-    res.status(500).json({ message: "sikertelen bejelentkezés" });
-  }
-  res.end();
-});
-
-//Új utazás létrehozása
-// request:
-// - username
-server.post("/trips", Auth(), async (req, res) => {
-  try {
-    const trip = await Trip.create({
-      ...req.body,
-      creator: req.user.username,
-    });
-
-    res.status(201).json({ message: "Utazás létrehozva", trip });
-  } catch (e) {
-    res
-      .status(500)
-      .json({ message: "Hiba az utazás mentésekor", error: e.message });
-  }
-});
-
-// Utazások listázása
-server.get("/trips", Auth(), async (req, res) => {
-  try {
-    const trips = await Trip.findAll({
-      where: { creator: req.user.username },
-    });
-    res.status(200).json(trips);
-  } catch (e) {
-    res.status(500).json({
-      message: "Nem sikerült lekérni az utazásokat",
-      error: e.message,
+    res.json({
+      token: ObtainToken(result),
     });
   }
 });
 
-//Egy utazás részletei
-// request:
-// - id
-// username
-server.get("/trips/:id", Auth(), async (req, res) => {
-  try {
-    const trip = await Trip.findOne({
-      where: {
-        id: req.params.id,
-        creator: req.user.username,
-      },
-    });
-    if (!trip) return res.status(404).json({ message: "Utazás nem található" });
-
-    res.status(200).json(trip);
-  } catch (e) {
-    res.status(500).json({ message: "Hiba történt", error: e.message });
-  }
-});
-
-// Utazás szerkesztése
-// request:
-// - id
-// - tripName
-// - tripDestination
-// - tripAccommodation
-// - tripTransport
-server.put("/trips/:id", async (req, res) => {
-  const trip = await Trip.findOne({
-    where: {
-      id: req.params.id,
-    },
-  });
-  if (trip) {
-    await Trip.update(
-      {
-        name: req.body.tripName,
-        destination: req.body.tripDestination,
-        accommodation: req.body.tripAccommodation,
-        transport: req.body.tripTransport,
-        description: req.body.tripDescription,
-        date: req.body.tripDate,
-      },
-      {
-        where: {
-          id: req.params.id,
-        },
-      },
-    );
-    res.json({ message: "sikeres módosítás" });
+app.post("/register", LoggedOutOnly, async (req, res) => {
+  const result = await Register(req.body.name, req.body.password);
+  if (typeof result == "string") {
+    APIError(res, result);
   } else {
-    res.status(500).json({ message: "nincs ilyen utazás" });
-  }
-  res.end();
-});
-
-// Utazás törlése
-// request:
-// - id
-server.delete("/trips/:id", async (req, res) => {
-  const trip = await Trip.findOne({
-    where: {
-      id: req.params.id,
-    },
-  });
-  if (trip) {
-    await Trip.destroy({
-      where: {
-        id: req.params.id,
-      },
+    res.json({
+      token: ObtainToken(result),
     });
-    res.json({ message: "sikeres törlés" });
-  } else {
-    res.status(500).json({ message: "nincs ilyen utazás" });
   }
-  res.end();
 });
 
-// Utazás keresése név alapján
-// request:
-// - name
-server.get("/trips/name/:name", async (req, res) => {
-  const trips = await Trip.findAll({
-    where: {
-      name: req.params.name,
-    },
+app.get("/me", LoggedInOnly, async (req, res) => {
+  const { id, name, createdAt, updatedAt } = res.locals.user;
+  const createdTrips = await Trip.findAll({
+    where: { creatorId: id },
+    include: [Destination, Accommodation, Transport],
   });
+  res.json({ id, name, createdAt, updatedAt, createdTrips });
+});
 
-  if (trips.length > 0) {
-    res.json(trips);
+app.get("/trips", async (req, res) => {
+  res.json(await searchTrips());
+});
+
+app.get("/trips/name/:name", async (req, res) => {
+  res.json(await searchTrips(req.params.name));
+});
+
+app.get("/trips/:id", async (req, res) => {
+  const trip = await Trip.findByPk(req.params.id, {
+    include: [Destination, Accommodation, Transport],
+  });
+  res.json(trip);
+});
+
+app.post("/trips", LoggedInOnly, async (req, res) => {
+  const { name, description, date, destination, accommodation, transport } =
+    req.body;
+  const result = await newTrip(
+    name,
+    description,
+    date,
+    destination,
+    accommodation,
+    transport,
+    res.locals.user.id,
+  );
+  if (typeof result == "string") {
+    APIError(res, result);
   } else {
-    res.status(404).json({ message: "nincs ilyen utazás" });
+    res.json(result);
   }
 });
 
-// A szerver elindítása a 'PORT' porton
-server.listen(PORT, () => {
-  console.log("A szerver fut a " + PORT + "-es porton");
+app.put("/trips/:id", LoggedInOnly, async (req, res) => {
+  const { name, description, date, destination, accommodation, transport } =
+    req.body;
+  const result = await editTrip(
+    req.params.id,
+    name,
+    description,
+    date,
+    destination,
+    accommodation,
+    transport,
+  );
+  if (typeof result == "string") {
+    APIError(res, result);
+  } else {
+    res.json(result);
+  }
+});
+
+app.delete("/trips/:id", LoggedInOnly, async (req, res) => {
+  const trip = await Trip.findByPk(req.params.id);
+  if (trip) await trip.destroy();
+  res.json({ msg: "Siker!" });
 });
