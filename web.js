@@ -275,3 +275,26 @@ app.post("/editdestination/:id", LoggedInOnly, async (req, res) => {
       });
   } else res.redirect("/");
 });
+
+app.get("/accommodations", LoggedInOnly, async (req, res) => {
+  res.render("accommodations", {
+    accommodations: await Accommodation.findAll({ include: Destination }),
+    destinations: await Destination.findAll(),
+  });
+});
+
+app.post("/accommodations", LoggedInOnly, async (req, res) => {
+  const { name, destination } = req.body;
+  if (name && destination) {
+    const existingDest = await Destination.findByPk(destination);
+    if (existingDest) {
+      await Accommodation.create({ name, DestinationId: destination });
+      res.redirect("/accommodations");
+    } else
+      res.render("accommodations", {
+        accommodations: await Accommodation.findAll({ include: Destination }),
+        destinations: await Destination.findAll(),
+        msg: "Ilyen úticél nem létezik!",
+      });
+  } else res.redirect("/accommodations");
+});

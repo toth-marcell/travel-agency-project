@@ -170,3 +170,19 @@ app.put("/destinations/:id", LoggedInOnly, async (req, res) => {
     } else APIError(res, "Meg kell adni egy nevet a `name` névvel.");
   } else APIError(res, "Ilyen id-vel nincs úticél");
 });
+
+app.get("/accommodations", LoggedInOnly, async (req, res) => {
+  res.json(await Accommodation.findAll({ include: Destination }));
+});
+
+app.post("/accommodations", LoggedInOnly, async (req, res) => {
+  const { name, destination } = req.body;
+  if (name && destination) {
+    const existingDest = await Destination.findByPk(destination);
+    if (existingDest) {
+      res.json(
+        await Accommodation.create({ name, DestinationId: destination }),
+      );
+    } else APIError(res, "Ilyen úticél nem létezik!");
+  } else APIError("Kötelező `name`-t és `destination`-t megadni.");
+});
