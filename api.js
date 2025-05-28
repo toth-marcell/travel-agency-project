@@ -149,3 +149,24 @@ app.delete("/transport/:id", LoggedInOnly, async (req, res) => {
     }
   } else APIError(res, "Ilyen id-vel nincs közlekedési lehetőség.");
 });
+
+app.get("/destinations", LoggedInOnly, async (req, res) => {
+  res.json(await Destination.findAll());
+});
+
+app.post("/destinations", LoggedInOnly, async (req, res) => {
+  const name = req.body.name;
+  if (name) res.json(await Destination.create({ name }));
+  else APIError(res, "Meg kell adni egy nevet a `name` névvel.");
+});
+
+app.put("/destinations/:id", LoggedInOnly, async (req, res) => {
+  const id = req.params.id;
+  const destination = await Destination.findByPk(id);
+  const newName = req.body.name;
+  if (destination) {
+    if (newName) {
+      res.json(await destination.update({ name: newName }));
+    } else APIError(res, "Meg kell adni egy nevet a `name` névvel.");
+  } else APIError(res, "Ilyen id-vel nincs úticél");
+});

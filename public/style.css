@@ -135,12 +135,14 @@ nav li {
   margin: auto;
 }
 
-#transportsPage table button {
+#transportsPage table button,
+#destinationsPage table button {
   padding: 5px;
   margin-right: 10px;
 }
 
-#transportsPage form > * {
+#transportsPage form > *,
+#destinationsPage form > * {
   display: inline-block;
 }
 

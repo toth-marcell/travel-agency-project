@@ -1,0 +1,18 @@
+<%- include("head") -%>
+<div class="card" id="destinationsPage">
+  <h2>Úticél szerkesztése</h2>
+  <% if (typeof msg != "undefined") { %>
+  <p id="msg"><%= msg %></p>
+  <% } %>
+  <p>Id: <span><%= id %></span></p>
+  <p>Eredeti név: <span><%= originalName %></span></p>
+  <form method="post">
+    <label>
+      Új név
+      <input name="name" value="<%= originalName %>">
+      <a href="/destinations"><button type="button">Mégsem</button></a>
+      <button>Mentés</button>
+    </label>
+  </form>
+</div>
+<%- include("foot") -%>

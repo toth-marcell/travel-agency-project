@@ -235,3 +235,43 @@ app.get("/deletetransport/:id", LoggedInOnly, async (req, res) => {
     }
   } else res.redirect("/transport");
 });
+
+app.get("/destinations", LoggedInOnly, async (req, res) => {
+  res.render("destinations", {
+    destinations: await Destination.findAll(),
+  });
+});
+
+app.post("/destinations", LoggedInOnly, async (req, res) => {
+  const name = req.body.name;
+  if (name) await Destination.create({ name });
+  res.redirect("/destinations");
+});
+
+app.get("/editdestination/:id", LoggedInOnly, async (req, res) => {
+  const id = req.params.id;
+  const destination = await Destination.findByPk(id);
+  if (destination) {
+    res.render("editdestination", {
+      id,
+      originalName: destination.name,
+    });
+  } else res.redirect("/");
+});
+
+app.post("/editdestination/:id", LoggedInOnly, async (req, res) => {
+  const id = req.params.id;
+  const destination = await Destination.findByPk(id);
+  const newName = req.body.name;
+  if (destination) {
+    if (newName) {
+      await destination.update({ name: newName });
+      res.redirect("/destinations");
+    } else
+      res.render("editdestination", {
+        id,
+        originalName: destination.name,
+        msg: "Nem lehet üres az úticél neve!",
+      });
+  } else res.redirect("/");
+});
