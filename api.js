@@ -123,3 +123,29 @@ app.delete("/trips/:id", LoggedInOnly, async (req, res) => {
   if (trip) await trip.destroy();
   res.json({ msg: "Siker!" });
 });
+
+app.get("/transport", LoggedInOnly, async (req, res) => {
+  res.json(await Transport.findAll());
+});
+
+app.post("/transport", LoggedInOnly, async (req, res) => {
+  const name = req.body.name;
+  if (name) res.json(await Transport.create({ name }));
+  else APIError(res, "Meg kell adni egy nevet a `name` névvel.");
+});
+
+app.delete("/transport/:id", LoggedInOnly, async (req, res) => {
+  const transport = await Transport.findByPk(req.params.id, { include: Trip });
+  if (transport) {
+    try {
+      await transport.destroy();
+      res.json({ msg: "Siker!" });
+    } catch (error) {
+      if (error.name == "SequelizeForeignKeyConstraintError") {
+        res.json({
+          msg: `Nem lehet törölni "${transport.name}"-t, mert a következő utakban szerepel: ${transport.Trips.map((x) => '"' + x.name + '"').join(", ")}`,
+        });
+      } else throw error;
+    }
+  } else APIError(res, "Ilyen id-vel nincs közlekedési lehetőség.");
+});
