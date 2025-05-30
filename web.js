@@ -298,3 +298,48 @@ app.post("/accommodations", LoggedInOnly, async (req, res) => {
       });
   } else res.redirect("/accommodations");
 });
+
+app.get("/editaccommodation/:id", LoggedInOnly, async (req, res) => {
+  const id = req.params.id;
+  const accommodation = await Accommodation.findByPk(id, {
+    include: Destination,
+  });
+  if (accommodation) {
+    res.render("editaccommodation", {
+      id,
+      name: accommodation.name,
+      originalName: accommodation.name,
+      destination: accommodation.DestinationId,
+      originalDest: accommodation.Destination.name,
+      destinations: await Destination.findAll(),
+    });
+  } else res.redirect("/accommodations");
+});
+
+app.post("/editaccommodation/:id", LoggedInOnly, async (req, res) => {
+  const id = req.params.id;
+  const accommodation = await Accommodation.findByPk(id, {
+    include: Destination,
+  });
+  const newName = req.body.name;
+  const newDest = req.body.destination;
+  if (accommodation) {
+    if (newName && newDest) {
+      const existingDest = await Destination.findByPk(newDest);
+      if (existingDest) {
+        await accommodation.update({ name: newName, DestinationId: newDest });
+        res.redirect("/accommodations");
+      } else res.redirect("/accommodations");
+    } else {
+      res.render("editaccommodation", {
+        id,
+        name: newName,
+        originalName: accommodation.name,
+        destination: newDest,
+        originalDest: accommodation.Destination.name,
+        destinations: await Destination.findAll(),
+        msg: "Meg kell adni nevet és helyszínt!",
+      });
+    }
+  } else res.redirect("/accommodations");
+});

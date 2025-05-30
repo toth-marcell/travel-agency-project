@@ -186,3 +186,20 @@ app.post("/accommodations", LoggedInOnly, async (req, res) => {
     } else APIError(res, "Ilyen úticél nem létezik!");
   } else APIError("Kötelező `name`-t és `destination`-t megadni.");
 });
+
+app.put("/accommodations/:id", LoggedInOnly, async (req, res) => {
+  const id = req.params.id;
+  const accommodation = await Accommodation.findByPk(id);
+  const newName = req.body.name;
+  const newDest = req.body.destination;
+  if (accommodation) {
+    if (newName && newDest) {
+      const existingDest = await Destination.findByPk(newDest);
+      if (existingDest) {
+        res.json(
+          await accommodation.update({ name: newName, DestinationId: newDest }),
+        );
+      } else APIError(res, "Ilyen úticél nem létezik!");
+    } else APIError(res, "Meg kell adni nevet és helyszínt!");
+  } else APIError(res, "Ilyen szállás nem létezik!");
+});

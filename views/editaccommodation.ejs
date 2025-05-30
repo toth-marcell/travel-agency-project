@@ -1,0 +1,27 @@
+<%- include("head") -%>
+<div class="card">
+  <h2>Szállás szerkesztés</h2>
+  <% if (typeof msg != "undefined") { %>
+  <p id="msg"><%= msg %></p>
+  <% } %>
+  <form method="post">
+    <p>Id: <span><%= id %></span></p>
+    <p>Eredeti név: <span><%= originalName %></span></p>
+    <p>Eredeti hely: <span><%= originalDest %></span></p>
+    <label>
+      Név
+      <input name="name" value="<%= name %>">
+    </label>
+    <label>
+      Hely
+      <select name="destination">
+        <% for (dest of destinations) { %>
+        <option value="<%= dest.id %>" <%= destination == dest.id ? "selected" : "" %>><%= dest.name %></option>
+        <% } %>
+      </select>
+    </label>
+    <a href="/accommodations"><button type="button">Mégsem</button></a>
+    <button>Mentés</button>
+  </form>
+</div>
+<%- include("foot") -%>
