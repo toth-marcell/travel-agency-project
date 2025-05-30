@@ -2,7 +2,7 @@
   --accent-color: #3498db;
   --main--color: #333;
   --main-background: #f5f7fa;
-  --card-background: white;
+  --card-background: #fff;
 }
 
 body {
@@ -85,7 +85,7 @@ select {
 }
 
 button {
-  background-color: #3498db;
+  background-color: var(--accent-color);
   color: white;
   border: none;
   padding: 10px 15px;
@@ -93,11 +93,11 @@ button {
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.3s;
+  transition: filter 0.3s;
 }
 
 button:hover {
-  background-color: #2980b9;
+  filter: brightness(75%);
 }
 
 button svg {
@@ -135,16 +135,12 @@ nav li {
   margin: auto;
 }
 
-#transportsPage table button,
-#destinationsPage table button,
-#accommodationPage table button {
+#listPage table button {
   padding: 5px;
   margin-right: 10px;
 }
 
-#transportsPage form > *,
-#destinationsPage form > *,
-#accommodationPage form > * {
+#listPage form > * {
   display: inline-block;
 }
 
