@@ -1,0 +1,19 @@
+Method 	Path                	Auth            	Inputs (req body)                                              	Inputs (parameter) 	Output
+POST   	/login              	logged out only 	name, password                                                 	                   	error message or new token
+POST   	/register           	logged out only 	name, password                                                 	                   	error message or new token
+GET    	/me                 	logged in only  	                                                               	                   	user info:  id, name, createdAt, updatedAt, createdTrips
+GET    	/trips              	                	                                                               	                   	all trips
+GET    	/trips/name/:name   	                	                                                               	name               	trips whose name matches name
+GET    	/trips/:id          	                	                                                               	id                 	info about trip with specified id
+POST   	/trips              	logged in only  	name, description, date, destination, accommodation, transport 	                   	error message or newly created trip
+PUT    	/trips              	logged in only  	name, description, date, destination, accommodation, transport 	                   	error message or edited trip
+DELETE 	/trips/:id          	logged in only  	                                                               	id                 	error or success message
+GET    	/transport          	logged in only  	                                                               	                   	all transport options
+POST   	/transport          	logged in only  	name                                                           	                   	error message or newly created transport option
+DELETE 	/transport/:id      	logged in only  	                                                               	id                 	error or success message
+GET    	/destinations       	logged in only  	                                                               	                   	all destinations
+POST   	/destinations       	logged in only  	name                                                           	                   	error message or newly created destination
+PUT    	/destinations/:id   	logged in only  	name                                                           	id                 	error message or updated destination
+GET    	/accommodations     	logged in only  	                                                               	                   	all accommodations
+POST   	/accommodations     	logged in only  	name, destination                                              	                   	error message or newly created accommodation
+PUT    	/accommodations/:id 	logged in only  	name, destination                                              	id                 	error message or updated accommodation
