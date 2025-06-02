@@ -2,10 +2,7 @@
 <div class="card">
   <h2>Bejelentkezés / Regisztráció</h2>
   <% if (typeof msg != "undefined") { %>
-  <p id="msg">
-    <span>Hiba: </span>
-    <%= msg %>
-  </p>
+  <p id="msg"><%= msg %></p>
   <% } %>
   <form method="post">
     <label>

@@ -215,8 +215,21 @@ app.get("/transport", LoggedInOnly, async (req, res) => {
 
 app.post("/transport", LoggedInOnly, async (req, res) => {
   const name = req.body.name;
-  if (name) await Transport.create({ name });
-  res.redirect("/transport");
+  if (name) {
+    if ((await Transport.findAll({ where: { name } })).length > 0)
+      res.render("transport", {
+        transports: await Transport.findAll(),
+        msg: "Ez a név már használva van egy másik közlekedési lehetőségnél!",
+      });
+    else {
+      await Transport.create({ name });
+      res.redirect("/transport");
+    }
+  } else
+    res.render("transport", {
+      transports: await Transport.findAll(),
+      msg: "Meg kell adni egy nevet a hozzáadáshoz!",
+    });
 });
 
 app.get("/deletetransport/:id", LoggedInOnly, async (req, res) => {
@@ -244,8 +257,21 @@ app.get("/destinations", LoggedInOnly, async (req, res) => {
 
 app.post("/destinations", LoggedInOnly, async (req, res) => {
   const name = req.body.name;
-  if (name) await Destination.create({ name });
-  res.redirect("/destinations");
+  if (name) {
+    if ((await Destination.findAll({ where: { name } })).length > 0)
+      res.render("destinations", {
+        destinations: await Destination.findAll(),
+        msg: "Ez a név már használva van egy másik úticélnak!",
+      });
+    else {
+      await Destination.create({ name });
+      res.redirect("/destinations");
+    }
+  } else
+    res.render("destinations", {
+      destinations: await Destination.findAll(),
+      msg: "Meg kell adni egy nevet a hozzáadáshoz!",
+    });
 });
 
 app.get("/editdestination/:id", LoggedInOnly, async (req, res) => {
@@ -255,6 +281,7 @@ app.get("/editdestination/:id", LoggedInOnly, async (req, res) => {
     res.render("editdestination", {
       id,
       originalName: destination.name,
+      name: destination.name,
     });
   } else res.redirect("/");
 });
@@ -265,8 +292,17 @@ app.post("/editdestination/:id", LoggedInOnly, async (req, res) => {
   const newName = req.body.name;
   if (destination) {
     if (newName) {
-      await destination.update({ name: newName });
-      res.redirect("/destinations");
+      if ((await Destination.findAll({ where: { name: newName } })).length > 0)
+        res.render("editdestination", {
+          id,
+          originalName: destination.name,
+          name: newName,
+          msg: "Ez a név már használva van egy másik úticélnak!",
+        });
+      else {
+        await destination.update({ name: newName });
+        res.redirect("/destinations");
+      }
     } else
       res.render("editdestination", {
         id,
@@ -288,8 +324,16 @@ app.post("/accommodations", LoggedInOnly, async (req, res) => {
   if (name && destination) {
     const existingDest = await Destination.findByPk(destination);
     if (existingDest) {
-      await Accommodation.create({ name, DestinationId: destination });
-      res.redirect("/accommodations");
+      if ((await Accommodation.findAll({ where: { name } })).length > 0)
+        res.render("accommodations", {
+          accommodations: await Accommodation.findAll({ include: Destination }),
+          destinations: await Destination.findAll(),
+          msg: "Ez a név már használva van egy másik szállásnak!",
+        });
+      else {
+        await Accommodation.create({ name, DestinationId: destination });
+        res.redirect("/accommodations");
+      }
     } else
       res.render("accommodations", {
         accommodations: await Accommodation.findAll({ include: Destination }),
@@ -327,8 +371,22 @@ app.post("/editaccommodation/:id", LoggedInOnly, async (req, res) => {
     if (newName && newDest) {
       const existingDest = await Destination.findByPk(newDest);
       if (existingDest) {
-        await accommodation.update({ name: newName, DestinationId: newDest });
-        res.redirect("/accommodations");
+        if (
+          (await Accommodation.findAll({ where: { name: newName } })).length > 0
+        )
+          res.render("editaccommodation", {
+            id,
+            name: newName,
+            originalName: accommodation.name,
+            destination: newDest,
+            originalDest: accommodation.Destination.name,
+            destinations: await Destination.findAll(),
+            msg: "Ez a név már használva van egy másik szállásnak!",
+          });
+        else {
+          await accommodation.update({ name: newName, DestinationId: newDest });
+          res.redirect("/accommodations");
+        }
       } else res.redirect("/accommodations");
     } else {
       res.render("editaccommodation", {

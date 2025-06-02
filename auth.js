@@ -58,7 +58,7 @@ export const Register = async (name, password) => {
 export const Login = async (name, password) => {
   if (name == "" || password == "") return "Nem lehet üres neved vagy jelszód!";
   const existingUser = await User.findOne({ where: { name: name } });
-  if (!existingUser) return `Nem létezik" ${name}" névvel felhasználó.`;
+  if (!existingUser) return `Nem létezik "${name}" névvel felhasználó.`;
   if (!comparePassword(existingUser.password, password)) return "Rossz jelszó!";
   return existingUser;
 };

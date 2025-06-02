@@ -120,8 +120,10 @@ app.put("/trips/:id", LoggedInOnly, async (req, res) => {
 
 app.delete("/trips/:id", LoggedInOnly, async (req, res) => {
   const trip = await Trip.findByPk(req.params.id);
-  if (trip) await trip.destroy();
-  res.json({ msg: "Siker!" });
+  if (trip) {
+    await trip.destroy();
+    res.json({ msg: "Siker!" });
+  } else APIError(res, "Ilyen id-vel nincs utazás.");
 });
 
 app.get("/transport", LoggedInOnly, async (req, res) => {
@@ -130,8 +132,14 @@ app.get("/transport", LoggedInOnly, async (req, res) => {
 
 app.post("/transport", LoggedInOnly, async (req, res) => {
   const name = req.body.name;
-  if (name) res.json(await Transport.create({ name }));
-  else APIError(res, "Meg kell adni egy nevet a `name` névvel.");
+  if (name) {
+    if ((await Transport.findAll({ where: { name } })).length > 0)
+      APIError(
+        res,
+        "Ez a név már használva van egy másik közlekedési lehetőségnél!",
+      );
+    else res.json(await Transport.create({ name }));
+  } else APIError(res, "Meg kell adni egy nevet a `name` névvel.");
 });
 
 app.delete("/transport/:id", LoggedInOnly, async (req, res) => {
@@ -156,8 +164,11 @@ app.get("/destinations", LoggedInOnly, async (req, res) => {
 
 app.post("/destinations", LoggedInOnly, async (req, res) => {
   const name = req.body.name;
-  if (name) res.json(await Destination.create({ name }));
-  else APIError(res, "Meg kell adni egy nevet a `name` névvel.");
+  if (name) {
+    if ((await Transport.findAll({ where: { name } })).length > 0)
+      APIError(res, "Ez a név már használva van egy másik úticélnak!");
+    else res.json(await Destination.create({ name }));
+  } else APIError(res, "Meg kell adni egy nevet a `name` névvel.");
 });
 
 app.put("/destinations/:id", LoggedInOnly, async (req, res) => {
@@ -166,7 +177,9 @@ app.put("/destinations/:id", LoggedInOnly, async (req, res) => {
   const newName = req.body.name;
   if (destination) {
     if (newName) {
-      res.json(await destination.update({ name: newName }));
+      if ((await Transport.findAll({ where: { name } })).length > 0)
+        APIError(res, "Ez a név már használva van egy másik úticélnak!");
+      else res.json(await destination.update({ name: newName }));
     } else APIError(res, "Meg kell adni egy nevet a `name` névvel.");
   } else APIError(res, "Ilyen id-vel nincs úticél");
 });
@@ -180,9 +193,12 @@ app.post("/accommodations", LoggedInOnly, async (req, res) => {
   if (name && destination) {
     const existingDest = await Destination.findByPk(destination);
     if (existingDest) {
-      res.json(
-        await Accommodation.create({ name, DestinationId: destination }),
-      );
+      if ((await Accommodation.findAll({ where: { name } })).length > 0)
+        APIError(res, "Ez a név már használva van egy másik szállásnak!");
+      else
+        res.json(
+          await Accommodation.create({ name, DestinationId: destination }),
+        );
     } else APIError(res, "Ilyen úticél nem létezik!");
   } else APIError("Kötelező `name`-t és `destination`-t megadni.");
 });
@@ -196,9 +212,17 @@ app.put("/accommodations/:id", LoggedInOnly, async (req, res) => {
     if (newName && newDest) {
       const existingDest = await Destination.findByPk(newDest);
       if (existingDest) {
-        res.json(
-          await accommodation.update({ name: newName, DestinationId: newDest }),
-        );
+        if (
+          (await Accommodation.findAll({ where: { name: newName } })).length > 0
+        )
+          APIError(res, "Ez a név már használva van egy másik szállásnak!");
+        else
+          res.json(
+            await accommodation.update({
+              name: newName,
+              DestinationId: newDest,
+            }),
+          );
       } else APIError(res, "Ilyen úticél nem létezik!");
     } else APIError(res, "Meg kell adni nevet és helyszínt!");
   } else APIError(res, "Ilyen szállás nem létezik!");

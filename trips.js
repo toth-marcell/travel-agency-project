@@ -22,6 +22,8 @@ export const newTrip = async (
     return "Az a szállás nem az úticélban található!";
   const tr = await Transport.findByPk(transport);
   if (!tr) return "Az a közlekedési mód nem létezik!";
+  if ((await Trip.findAll({ where: { name } })).length > 0)
+    return "Ez a név már használva van egy másik utazásnál!";
   const trip = await Trip.create({
     name,
     description,
@@ -55,6 +57,8 @@ export const editTrip = async (
     return "Az a szállás nem az úticélban található!";
   const tr = await Transport.findByPk(transport);
   if (!tr) return "Az a közlekedési mód nem létezik!";
+  if ((await Trip.findAll({ where: { name } })).length > 0)
+    return "Ez a név már használva van egy másik utazásnál!";
   const trip = await Trip.findByPk(id);
   if (trip) {
     await trip.update({
